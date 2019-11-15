@@ -50,12 +50,9 @@ public class PressureWrite {
         long endTime = System.currentTimeMillis();
         System.out.println("end time at: " + endTime);
         System.out.println("cos time: " + (endTime -startTime) + "ms" );
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         RestClient restClient = ElasticsearchClient.getRestClient();
+
         Response rsp = null;
         Map<String, String> params = Collections.singletonMap("pretty", "true");
         String queryString ="{\n" +
@@ -70,6 +67,8 @@ public class PressureWrite {
                 "}";
         HttpEntity entity = new NStringEntity(queryString, ContentType.APPLICATION_JSON);
         try {
+            restClient.performRequest("POST","/"+index+"/_flush",params);
+            Thread.sleep(3000);
             rsp = restClient.performRequest("GET", "/"+index+"/_search", params, entity);
             String responseBody = EntityUtils.toString(rsp.getEntity());
             System.out.println("********************************************");
@@ -81,6 +80,8 @@ public class PressureWrite {
             System.out.println("********************************************");
             restClient.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 

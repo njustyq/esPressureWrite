@@ -42,6 +42,7 @@ public class WriteThread extends Thread {
             if (restClient != null){
                 try {
                     restClient.close();
+                    countDownLatch.countDown();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

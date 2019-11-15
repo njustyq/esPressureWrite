@@ -18,29 +18,38 @@ import java.util.Map;
  */
 public class BulkService {
 
-    public static void bulkWithDocId(RestClient restClient, String index, String type,int dataSize) throws IOException {
+    public static void bulkWithDocId(RestClient restClient, String index, String type,int dataSize)  {
         String indexRequests = JsonUtils.getIndexRequests(dataSize);
         StringEntity entity = new StringEntity(indexRequests, ContentType.APPLICATION_JSON);
         entity.setContentEncoding("UTF-8");
         Map<String, String> params = Collections.singletonMap("pretty", "true");
         Response rsp = null;
-        rsp = restClient.performRequest("PUT", "/"+index+"/"+type+"/_bulk" ,params ,entity);
-        if(HttpStatus.SC_OK != rsp.getStatusLine().getStatusCode()) {
-            System.out.println("At:" + System.currentTimeMillis() + ",Bulk response entity is : " + EntityUtils.toString(rsp.getEntity()));
+        try {
+            rsp = restClient.performRequest("PUT", "/"+index+"/"+type+"/_bulk" ,params ,entity);
+            if(HttpStatus.SC_OK != rsp.getStatusLine().getStatusCode()) {
+                System.out.println("At:" + System.currentTimeMillis() + ",Bulk response entity is : " + EntityUtils.toString(rsp.getEntity()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
-    public static void bulkWithoutDocId(RestClient restClient, String index, String type,int dataSize) throws IOException {
+    public static void bulkWithoutDocId(RestClient restClient, String index, String type,int dataSize) {
         String indexRequests = JsonUtils.getIndexRequestsWithoutDocId(dataSize);
         StringEntity entity = new StringEntity(indexRequests, ContentType.APPLICATION_JSON);
         entity.setContentEncoding("UTF-8");
         Map<String, String> params = Collections.singletonMap("pretty", "true");
         Response rsp = null;
-        rsp = restClient.performRequest("PUT", "/"+index+"/"+type+"/_bulk" ,params ,entity);
-        if(HttpStatus.SC_OK != rsp.getStatusLine().getStatusCode()) {
-            System.out.println("At:" + System.currentTimeMillis() + ",Bulk response entity is : " + EntityUtils.toString(rsp.getEntity()));
+        try {
+            rsp = restClient.performRequest("PUT", "/"+index+"/"+type+"/_bulk" ,params ,entity);
+            if(HttpStatus.SC_OK != rsp.getStatusLine().getStatusCode()) {
+                System.out.println("At :" + System.currentTimeMillis() + ",Bulk response entity is : " + EntityUtils.toString(rsp.getEntity()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    public static void bulk(RestClient restClient, String index, String type,int dataSize,boolean specifyDocId) throws IOException {
+    public static void bulk(RestClient restClient, String index, String type,int dataSize,boolean specifyDocId) {
         if (specifyDocId){
             bulkWithDocId(restClient,index,type,dataSize);
         }
