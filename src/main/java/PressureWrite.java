@@ -72,11 +72,14 @@ public class PressureWrite {
             rsp = restClient.performRequest("GET", "/"+index+"/_search", params, entity);
             String responseBody = EntityUtils.toString(rsp.getEntity());
             System.out.println("********************************************");
-            System.out.println("the number of the data is:");
             JSONObject jsonObject = JSON.parseObject(responseBody);
             String jsonObejectStr =  jsonObject.get("hits").toString();
             JSONObject jsonObject1 = JSON.parseObject(jsonObejectStr);
-            System.out.println(jsonObject1.get("total"));
+            Integer totalHitsInt = (Integer) jsonObject1.get("total");
+            long totalHits = Long.valueOf(totalHitsInt);
+            System.out.println("the number of the data is: " + totalHits);
+            System.out.println("********************************************");
+            System.out.println("the qps is: " +  (totalHits*1000L)/(endTime -startTime));
             System.out.println("********************************************");
             restClient.close();
         } catch (IOException e) {

@@ -10,7 +10,7 @@ import org.apache.commons.lang.RandomStringUtils;
 public class JsonUtils {
 //    public static String indexHeader = "{ \"index\" : { \"_index\" : \" + index + \", \"_type\" :  \" + type + \"} }";
     public static String indexHeader = "{ \"index\" : {  \"_id\" :  \"docs_id_match\"} }";
-    public static String indexHeader2 = "{ \"index\" : {}";
+    public static String indexHeader2 = "{ \"index\" : {}}";
     static TupleUtil[] tuples = DataUtils.getTuple();
 
     public static String getStringJsonArray(int dataSize) {
