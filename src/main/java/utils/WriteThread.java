@@ -19,7 +19,9 @@ public class WriteThread extends Thread {
     CountDownLatch countDownLatch;
     RestClient restClient = ElasticsearchClient.getRestClient();
     boolean specifyDocId;
-    public WriteThread(String index,String type,int groups,int dataSize,CountDownLatch countDownLatch,boolean specifyDocId){
+    long cosTime = 0L;
+
+    public WriteThread(String index, String type, int groups, int dataSize, CountDownLatch countDownLatch, boolean specifyDocId) {
         this.index = index;
         this.type = type;
         this.dataSize = dataSize;
@@ -27,19 +29,26 @@ public class WriteThread extends Thread {
         this.countDownLatch = countDownLatch;
         this.specifyDocId = specifyDocId;
     }
+
     @Override
     public void run() {
+        long cosTimeOnce = 0L;
+        long maxCosTime = 0L;
         super.run();
         try {
-            for (int i = 0;i<groups;i++){
-                BulkService.bulk(restClient,index,type,dataSize,specifyDocId);
+            for (int i = 0; i < groups; i++) {
+                cosTimeOnce = BulkService.bulk(restClient, index, type, dataSize, specifyDocId);
+                cosTime += cosTimeOnce;
+                maxCosTime = cosTimeOnce > maxCosTime?cosTimeOnce:maxCosTime;
+//                System.out.println(Thread.currentThread().getName() + " : avgCosTime: "+(cosTime/(i+1))+"ms, maxCosTime: "+maxCosTime+"ms");
             }
+            System.out.println(Thread.currentThread().getName() + " : avgCosTime: "+(cosTime/groups)+"ms, maxCosTime: "+maxCosTime+"ms");
             countDownLatch.countDown();
             restClient.close();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if (restClient != null){
+        } finally {
+            if (restClient != null) {
                 try {
                     restClient.close();
                     countDownLatch.countDown();

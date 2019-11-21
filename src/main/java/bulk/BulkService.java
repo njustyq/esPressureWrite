@@ -18,39 +18,41 @@ import java.util.Map;
  */
 public class BulkService {
 
-    public static void bulkWithDocId(RestClient restClient, String index, String type,int dataSize) throws IOException {
+    public static long bulkWithDocId(RestClient restClient, String index, String type,int dataSize) throws IOException {
         String indexRequests = JsonUtils.getIndexRequests(dataSize);
         StringEntity entity = new StringEntity(indexRequests, ContentType.APPLICATION_JSON);
         entity.setContentEncoding("UTF-8");
         Map<String, String> params = Collections.singletonMap("pretty", "true");
         Response rsp = null;
+        long startTime = System.currentTimeMillis();
         rsp = restClient.performRequest("PUT", "/"+index+"/"+type+"/_bulk" ,params ,entity);
+        long endTime = System.currentTimeMillis();
         if(HttpStatus.SC_OK != rsp.getStatusLine().getStatusCode()) {
                 System.out.println("At:" + System.currentTimeMillis() + ",Bulk response entity is : " + EntityUtils.toString(rsp.getEntity()));
         }
+        return endTime-startTime;
     }
-    public static void bulkWithoutDocId(RestClient restClient, String index, String type,int dataSize) throws IOException {
+    public static long bulkWithoutDocId(RestClient restClient, String index, String type,int dataSize) throws IOException {
         String indexRequests = JsonUtils.getIndexRequestsWithoutDocId(dataSize);
         StringEntity entity = new StringEntity(indexRequests, ContentType.APPLICATION_JSON);
         entity.setContentEncoding("UTF-8");
         Map<String, String> params = Collections.singletonMap("pretty", "true");
         Response rsp = null;
-
+        long startTime = System.currentTimeMillis();
         rsp = restClient.performRequest("PUT", "/"+index+"/"+type+"/_bulk" ,params ,entity);
-
+        long endTime = System.currentTimeMillis();
         if(HttpStatus.SC_OK != rsp.getStatusLine().getStatusCode()) {
             System.out.println("At :" + System.currentTimeMillis() + ",Bulk response entity is : " + EntityUtils.toString(rsp.getEntity()));
         }
-
+        return endTime-startTime;
     }
-    public static void bulk(RestClient restClient, String index, String type,int dataSize,boolean specifyDocId) throws IOException {
+    public static long bulk(RestClient restClient, String index, String type,int dataSize,boolean specifyDocId) throws IOException {
         if (specifyDocId){
-            bulkWithDocId(restClient,index,type,dataSize);
+           return bulkWithDocId(restClient,index,type,dataSize);
         }
         else {
-            bulkWithoutDocId(restClient,index,type,dataSize);
+          return bulkWithoutDocId(restClient,index,type,dataSize);
         }
-
     }
 
 }

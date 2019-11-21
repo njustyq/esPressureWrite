@@ -22,8 +22,8 @@ import java.util.concurrent.CountDownLatch;
 public class PressureWrite {
 
     public static void main(String[] args) {
-        args = new String[]{"2", "2", "5"};
-        if (args.length != 3){
+        args = new String[]{"20", "2", "2"};
+        if (args.length != 3) {
             System.out.println("args must be \"groups\" \"dataSizePerGroup\" \"threadNum\"");
             return;
         }
@@ -34,12 +34,12 @@ public class PressureWrite {
         String type = PropertyUtil.getINSTANCE().getMappingType();
         CountDownLatch countDownLatch = new CountDownLatch(threadNum);
         WriteThread[] writeThread = new WriteThread[threadNum];
-        for (int i=0;i<threadNum;i++){
-            writeThread[i] = new WriteThread(index,type,groups,dataSizePerGroup,countDownLatch,PropertyUtil.getINSTANCE().isSpecifyDocId());
+        for (int i = 0; i < threadNum; i++) {
+            writeThread[i] = new WriteThread(index, type, groups, dataSizePerGroup, countDownLatch, PropertyUtil.getINSTANCE().isSpecifyDocId());
         }
         long startTime = System.currentTimeMillis();
         System.out.println("start time at: " + startTime);
-        for (int i=0;i<threadNum;i++){
+        for (int i = 0; i < threadNum; i++) {
             writeThread[i].start();
         }
         try {
@@ -49,43 +49,50 @@ public class PressureWrite {
         }
         long endTime = System.currentTimeMillis();
         System.out.println("end time at: " + endTime);
-        System.out.println("cos time: " + (endTime -startTime) + "ms" );
+        System.out.println("cos time: " + (endTime - startTime) + "ms");
 
         RestClient restClient = ElasticsearchClient.getRestClient();
-
         Response rsp = null;
         Map<String, String> params = Collections.singletonMap("pretty", "true");
-        String queryString ="{\n" +
+        String queryString = "{\n" +
                 "  \"query\": {\n" +
                 "    \"range\": {\n" +
                 "      \"timestamp\": {\n" +
-                "        \"gte\": "+ startTime +",\n" +
-                "        \"lte\": "+ endTime +"\n" +
+                "        \"gte\": " + startTime + ",\n" +
+                "        \"lte\": " + endTime + "\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
                 "}";
         HttpEntity entity = new NStringEntity(queryString, ContentType.APPLICATION_JSON);
         try {
-            restClient.performRequest("POST","/"+index+"/_flush",params);
             Thread.sleep(3000);
-            rsp = restClient.performRequest("GET", "/"+index+"/_search", params, entity);
+            rsp = restClient.performRequest("GET", "/" + index + "/_search", params, entity);
             String responseBody = EntityUtils.toString(rsp.getEntity());
             System.out.println("********************************************");
             JSONObject jsonObject = JSON.parseObject(responseBody);
-            String jsonObejectStr =  jsonObject.get("hits").toString();
+            String jsonObejectStr = jsonObject.get("hits").toString();
             JSONObject jsonObject1 = JSON.parseObject(jsonObejectStr);
             Integer totalHitsInt = (Integer) jsonObject1.get("total");
             long totalHits = Long.valueOf(totalHitsInt);
             System.out.println("the number of the data is: " + totalHits);
             System.out.println("********************************************");
-            System.out.println("the qps is: " +  (totalHits*1000L)/(endTime -startTime));
+            System.out.println("the qps is: " + (totalHits * 1000L) / (endTime - startTime));
             System.out.println("********************************************");
             restClient.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (restClient != null) {
+                    restClient.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }

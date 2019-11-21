@@ -14,7 +14,6 @@ public class JsonUtils {
     static TupleUtil[] tuples = DataUtils.getTuple();
 
     public static String getStringJsonArray(int dataSize) {
-//        String jsonResult = null;
         JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < dataSize; i++) {
             JSONObject jsonObject = new JSONObject();

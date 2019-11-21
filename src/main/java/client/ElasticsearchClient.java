@@ -13,15 +13,8 @@ import org.elasticsearch.client.RestClientBuilder;
  * @date 2019/11/12 16:47
  */
 public class ElasticsearchClient {
-//    private RestClient restClient = null;
-//    private static ElasticsearchClient INSTANCE = new ElasticsearchClient();
     public ElasticsearchClient(){
-//        initRestClient();
     }
-//
-//    public static ElasticsearchClient getINSTANCE() {
-//        return INSTANCE;
-//    }
 
     public static RestClient getRestClient() {
         return initRestClient();
